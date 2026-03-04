@@ -1,7 +1,7 @@
 ﻿  курсач.cpp
-C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(119,28): warning C4305: аргумент: усечение из "char" в "bool"
-C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(130,29): warning C4305: аргумент: усечение из "char" в "bool"
-C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(137,29): warning C4305: аргумент: усечение из "char" в "bool"
-C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(559,43): warning C4390: ";": обнаружен пустой контролируемый оператор; это правильно?
-C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(728,25): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(125,29): warning C4305: аргумент: усечение из "char" в "bool"
+C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(173,29): warning C4305: аргумент: усечение из "char" в "bool"
+C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(180,29): warning C4305: аргумент: усечение из "char" в "bool"
+C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(611,43): warning C4390: ";": обнаружен пустой контролируемый оператор; это правильно?
+C:\Users\Daniil\source\repos\курсач\курсач\курсач.cpp(780,25): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
   курсач.vcxproj -> C:\Users\Daniil\source\repos\курсач\x64\Debug\курсач.exe

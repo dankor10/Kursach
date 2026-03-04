@@ -9,19 +9,33 @@ struct Arenda {
 
     //Сноуборд, горные лыжи, беговые лыжи, палки для лыж, ботинки для сноуборда , 
     //ботинки для лыж, маска, шлем, коньки, тюбинг, комплект лыж и комплект сноуборда
-    char name[25]; //тип оборудования 
+    char name[50]; //тип оборудования 
     int number; //инвентарный номер
-    char time[10]; //время сдачи в аренду 
+    char time[100]; //время сдачи в аренду 
     int duration; //длительность аренды 
     int price; // цена за час 
 
 };
 
-
+char arrname[12][50] =
+{
+    {"snowbord"},//1
+    {"ski"},//2
+    {"skates"},//3
+    {"cross-countri skiing"},//4
+    {"tubing"},//5
+    {"set of ski"},//6
+    {"set of snowbord"},//7
+    {"helmet"},//8
+    {"ski boots"},//9
+    {"snowbord boots"},//10
+    {"mask"},//11
+    {"ski poles"},//12
+};
 
 int NewRecord() { // новая запись
 
-    const int NAME_SIZE = 25;
+    const int NAME_SIZE = 50;
     const int TIME_SIZE = 20;
 
     char name[NAME_SIZE];
@@ -29,19 +43,7 @@ int NewRecord() { // новая запись
     char time[TIME_SIZE];
     int duration;
     int price;
-
-    char snowbord[] = "snowbord";
-    char ski[] = "ski";
-    char skates[] = "skates";
-    char cross_countriSkiing[] = "cross-countri skiing";
-    char tubing[] = "tubing";
-    char setSki[] = "set of Ski";
-    char setsnowbord[] = "set of snowbord";
-    char helmet[] = "helmet";
-    char skiBoots[] = "ski boots";
-    char snowbordBoots[] = "snowbord boots";
-    char mask[] = "mask";
-    char skiPoles[] = "ski poles";
+    int hour = -1, minutes = -1;
 
     int choise2 = 0;
 
@@ -58,7 +60,7 @@ int NewRecord() { // новая запись
         return 1;
     }
 
-    while (choise == 'y' || choise == 'Y') {
+    while (choise == 'y' || choise == 'Y' || choise == 'н' || choise == 'Н') {
 
         cout << "Введите тип оборудования: " << endl << endl <<
             "1. Комплект лыж." << endl <<
@@ -73,55 +75,96 @@ int NewRecord() { // новая запись
             "10. Тюбинг." << endl <<
             "11. Коньки." << endl <<
             "12. Беговые лыжи." << endl;
+        cin >> choise2;
 
         switch (choise2) {
         case 1:
-            strcpy_s(name, setSki);
+            strcpy_s(name, arrname[5]);
             break;
         case 2:
-            strcpy_s(name, setsnowbord);
+            strcpy_s(name, arrname[6]);
             break;
         case 3:
-            strcpy_s(name, snowbord);
+            strcpy_s(name, arrname[0]);
             break;
         case 4:
-            strcpy_s(name, skiBoots);
+            strcpy_s(name, arrname[9]);
             break;
         case 5:
-            strcpy_s(name, ski);
+            strcpy_s(name, arrname[1]);
             break;
         case 6:
-            strcpy_s(name, skiBoots);
+            strcpy_s(name, arrname[8]);
             break;
         case 7:
-            strcpy_s(name, skiPoles);
+            strcpy_s(name, arrname[11]);
             break;
         case 8:
-            strcpy_s(name, helmet);
+            strcpy_s(name, arrname[7]);
             break;
         case 9:
-            strcpy_s(name, setSki);
+            strcpy_s(name, arrname[10]);
             break;
         case 10:
-            strcpy_s(name, tubing);
+            strcpy_s(name, arrname[4]);
             break;
         case 11:
-            strcpy_s(name, skates);
+            strcpy_s(name, arrname[2]);
             break;
         case 12:
-            strcpy_s(name, cross_countriSkiing);
+            strcpy_s(name, arrname[3]);
             break;
+        default:
+            cout << "Неверный выбор!" << endl;
+            continue;
         }
 
         cout << "Введите инвентарный номер: ";
         while (!(cin >> number)) {
             cin.ignore();
-            cin.clear(1000,'\n');
+            cin.clear(1000, '\n');
             cout << "Введите число: ";
         }
 
-        cout << "Введите время сдачи: ";
-        cin.getline(time, TIME_SIZE);
+        cout << "Введите время сдачи: " << endl;
+
+        while (true) {
+            cout << "Введите часы (0-23): ";
+            cin >> hour;
+
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Ошибка! Введите число." << endl;
+                continue;
+            }
+
+            if (hour >= 0 && hour <= 23) {
+                break;
+            }
+
+            cout << "Ошибка! Часы должны быть от 0 до 23." << endl;
+        }
+
+        while (true) {
+            cout << "Введите минуты (0-59): ";
+            cin >> minutes;
+
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Ошибка! Введите число." << endl;
+                continue;
+            }
+
+            if (minutes >= 0 && minutes <= 59) {
+                break;
+            }
+
+            cout << "Ошибка! Минуты должны быть от 0 до 59." << endl;
+        }
+
+        sprintf_s(time, TIME_SIZE, "%02d.%02d", hour, minutes);
 
 
         cout << "Введите длительность аренды: ";
@@ -169,54 +212,47 @@ void Out_Rez(Arenda* note, int size) {// для вывода
     }
 }
 
-int QuickSort(Arenda* note, int size, int vibor2) { //Быстрая сортировка, не работает
-    // чтобы справа были эл больше опорногго, слева меньше
+int QuickSort(Arenda* note, int size, int vibor2) { //Быстрая сортировка
+    // чтобы справа были эл больше опорного, слева меньше
 
     if (size <= 1) {
         return 1;
     }
 
-    Arenda point = note[(size - 1) / 2]; // Опорный элемент
-    int i = 0, j = size - 1;
+    // Берем опорный элемент (лучше взять последний или случайный)
+    Arenda point = note[size - 1]; // Опорный элемент - последний
+    int i = 0; // Индекс для элементов слева
 
-    while (i <= j) {
+    // Разделение на две части
+    for (int j = 0; j < size - 1; j++) {
         if (vibor2 == 1) { // По убыванию
-
-            while (i <= j && note[i].duration >= point.duration) {
+            if (note[j].duration >= point.duration) {
+                // Меняем местами
+                Arenda temp = note[i];
+                note[i] = note[j];
+                note[j] = temp;
                 i++;
-            }
-
-            while (i <= j && note[j].duration <= point.duration) {
-                j--;
             }
         }
         else { // По возрастанию
-
-            while (i <= j && note[i].duration <= point.duration) {
+            if (note[j].duration <= point.duration) {
+                // Меняем местами
+                Arenda temp = note[i];
+                note[i] = note[j];
+                note[j] = temp;
                 i++;
             }
-
-            while (i <= j && note[j].duration >= point.duration) {
-                j--;
-            }
-        }
-
-        // Если нашли пару для обмена
-        if (i <= j) {
-            Arenda temp = note[i];
-            note[i] = note[j];
-            note[j] = temp;
-            i++;
-            j--;
         }
     }
 
-    if (j > 0) {
-        QuickSort(note, j + 1, vibor2);      // Левая часть
-    }
-    if (i < size) {
-        QuickSort(&note[i], size - i, vibor2); // Правая часть
-    }
+    // Ставим опорный элемент на правильное место
+    Arenda temp = note[i];
+    note[i] = note[size - 1];
+    note[size - 1] = temp;
+
+    // Рекурсивно сортируем две части
+    QuickSort(note, i, vibor2);           // Левая часть
+    QuickSort(&note[i + 1], size - i - 1, vibor2); // Правая часть
 
     return 0;
 }
@@ -301,15 +337,15 @@ int Sort(Arenda* note, int size) { // для сортировки
             "3. Сортировка вставками по цене за час." << endl <<
             "Введите 0 для выхода." << endl;
 
-        while (!(cin >> vibor)) {
+        while (!(cin >> vibor)) { //исправить
             cin.clear();
             cin.ignore(1000, '\n');
             cout << "Ошибка! Введите число (0 - 3): ";
         }
 
         cout << "Как сортировать" << endl <<
-            "1. По возрастсанию." << endl <<
-            "2. По убыванию. " << endl <<
+            "1. По убыванию." << endl <<
+            "2. По возрастанию. " << endl <<
             "Введите 0 для выхода" << endl;
 
         while (!(cin >> vibor2)) {
@@ -319,7 +355,6 @@ int Sort(Arenda* note, int size) { // для сортировки
         }
 
         if (vibor == 0) {
-            cout << "Программа завершена." << endl;
             return 0;
         }
 
@@ -330,15 +365,21 @@ int Sort(Arenda* note, int size) { // для сортировки
 
         switch (vibor) {
         case 1:
-            QuickSort(note, size, vibor2);
+            if (QuickSort(note, size, vibor2) == 0) {
+                cout << "В массиве не хватает элементов для сортировки";
+            }
             Out_Rez(note, size);
             break;
         case 2:
-            SelectionSort(note, size, vibor2);
+            if (SelectionSort(note, size, vibor2) == 0) {
+                cout << "В массиве не хватает элементов для сортировки";
+            }
             Out_Rez(note, size);
             break;
         case 3:
-            InsertionSort(note, size, vibor2);
+            if (InsertionSort(note, size, vibor2) == 0) {
+                cout << "В массиве не хватает элементов для сортировки";
+            }
             Out_Rez(note, size);
             break;
         }
@@ -353,32 +394,43 @@ int serchBin(Arenda* note, int size) {// Бинарный поиск по дли
 
     const int SIZE = 1000;
     int indices[SIZE];
-    int index = 0, zndex = 0, cndex = 0;
+    int index = 0, zndex = 0, cndex = 0, jndex = 0;
     char choise, choise2, choise3 = 'y';
     int select;
     int left, right, mid;
 
 
     while (choise3 == 'y' || choise3 == 'Y') {
-        while (note[index].duration > note[index + 1].duration) {
-            cout << "Данные не отсортированы. Отсортировать?(y/n)";
-            cin >> choise;
 
-            if (choise == 'y' || choise == 'Y') {
+        for (int i = 0; i < size - 1; i++) {
 
-                QuickSort(note, size, choise);
-
+            if (note[i].duration > note[i + 1].duration) {
+                jndex++;
             }
-            else {
-                cout << "Данные не отсортированы. Хотите выйти(y/n)";
-                cin >> choise2;
+        }
 
-                if (choise2 == 'y' || choise2 == 'Y') {
-                    return 0;
+        if (jndex >= 1) {
+            while (true) {
+                cout << "Данные не отсортированы. Отсортировать?(y/n)";
+                cin >> choise;
+
+                if (choise == 'y' || choise == 'Y') {
+
+                    QuickSort(note, size, choise);
+
                 }
                 else {
-                    continue;
+                    cout << "Данные не отсортированы. Хотите выйти(y/n)";
+                    cin >> choise2;
+
+                    if (choise2 == 'y' || choise2 == 'Y') {
+                        return 0;
+                    }
+                    else {
+                        continue;
+                    }
                 }
+                break;
             }
         }
 
@@ -585,10 +637,10 @@ int Stat(Arenda* note, int size) {// для статистики
     char tubing[] = "tubing";
     Arenda arrTubing[SIZE];
     int indexTubing = 0, jndexTubing = 0;
-    char setSki[] = "Set of ski";
+    char setSki[] = "set of ski";
     Arenda arrSetSki[SIZE];
     int indexSetSki = 0, jndexSetSki = 0;
-    char setSnowbord[] = "Set of snowbord";
+    char setSnowbord[] = "set of snowbord";
     Arenda arrSetSnowbord[SIZE];
     int indexSetSnowbord = 0, jndexSetSnowbord = 0;
     char helmet[] = "helmet";
