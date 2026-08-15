@@ -1,427 +1,655 @@
-﻿#include <iostream>
-//#include <ctime>
-#include <stdio.h>
-#include <cstring> 
+//тема 105, система учета проката горнолыжного оборудования
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <iomanip>
+#include <io.h>
+#include <cstring>
+#include <cstdio>
 
 using namespace std;
 
-struct Arenda {
+char name[50]; //тип оборудования 
+int number; //инвентарный номер
+char Time[20]; //время сдачи в аренду 
+int duration; //длительность аренды 
+int price; //цена за час
 
-    //Сноуборд, горные лыжи, беговые лыжи, палки для лыж, ботинки для сноуборда , 
-    //ботинки для лыж, маска, шлем, коньки, тюбинг, комплект лыж и комплект сноуборда
-    char name[50]; //тип оборудования 
-    int number; //инвентарный номер
-    char time[100]; //время сдачи в аренду 
-    int duration; //длительность аренды 
-    int price; // цена за час 
+char tempName[50];
+int tempNumber;
+char tempTime[20];
+int tempDuration;
+int tempPrice;
 
-};
+int currNumber;
+char currName[50];
+char currTime[20];
+int currDuration;
+int currPrice;
+
+void Read(FILE* file, char* name, int& number, char* time, int& durationz, int& price, int index) {
+
+    index = index - 1;
+
+    fseek(file, index * (70 + (3 * sizeof(int))), SEEK_SET);
+
+    fread(name, 50, 1, file);
+    fread(&number, sizeof(int), 1, file);
+    fread(time, 20, 1, file);
+    fread(&durationz, sizeof(int), 1, file);
+    fread(&price, sizeof(int), 1, file);
+
+}
+
+void Write(FILE* file, char* name, int& number, char* time, int& durationz, int& price, const char fileName[20] = "Prokat.txt",
+    const char fileTape[3] = "ab") {
+
+    fwrite(name, 50, 1, file);
+    fwrite(&number, sizeof(int), 1, file);
+    fwrite(time, 20, 1, file);
+    fwrite(&durationz, sizeof(int), 1, file);
+    fwrite(&price, sizeof(int), 1, file);
+
+}
 
 char arrname[12][50] =
 {
-    {"snowbord"},//1
-    {"ski"},//2
-    {"skates"},//3
-    {"cross-countri skiing"},//4
-    {"tubing"},//5
-    {"set of ski"},//6
-    {"set of snowbord"},//7
-    {"helmet"},//8
-    {"ski boots"},//9
-    {"snowbord boots"},//10
-    {"mask"},//11
-    {"ski poles"},//12
+    {"snowbord"},
+    {"ski"},
+    {"skates"},
+    {"cross-countri skiing"},
+    {"tubing"},
+    {"set of ski"},
+    {"set of snowbord"},
+    {"helmet"},
+    {"ski boots"},
+    {"snowbord boots"},
+    {"mask"},
+    {"ski poles"},
 };
 
-int NewRecord() { // новая запись
 
-    const int NAME_SIZE = 50;
-    const int TIME_SIZE = 20;
+int GetFileSize(FILE* file) {
 
-    char name[NAME_SIZE];
-    int number;
-    char time[TIME_SIZE];
-    int duration;
-    int price;
-    int hour = -1, minutes = -1;
+    fseek(file, 0, SEEK_END);
+    int size = ftell(file) / (70 + (3 * sizeof(int)));
+    fseek(file, 0, SEEK_SET);
 
-    int choise2 = 0;
+    return size;
+}
 
-    cout << "Добавление записи..." << endl;
-
-    char choise = 'y';
+bool ChekFile(int number) {
 
     FILE* file;
-    errno_t err = fopen_s(&file, "Prokat.txt", "a");
+    errno_t err = fopen_s(&file, "Prokat.txt", "ab");
 
-    if (err != 0) {
+    for (int i = 1; i - 1 < GetFileSize(file); i++) {
 
-        cout << "Ошибка, файл не найден";
-        return 1;
-    }
+        char name[50];
+        int numberChek;
+        char time[20];
+        int duration;
+        int price;
 
-    while (choise == 'y' || choise == 'Y' || choise == 'н' || choise == 'Н') {
 
-        cout << "Введите тип оборудования: " << endl << endl <<
-            "1. Комплект лыж." << endl <<
-            "2. Комплект сноуборда." << endl <<
-            "3. Сноуборд." << endl <<
-            "4. Ботинки сноубордические." << endl <<
-            "5. Лыжи." << endl <<
-            "6. Ботинки лыжные." << endl <<
-            "7. Палки лыжные." << endl <<
-            "8. Шлем." << endl <<
-            "9. Маска." << endl <<
-            "10. Тюбинг." << endl <<
-            "11. Коньки." << endl <<
-            "12. Беговые лыжи." << endl;
-        cin >> choise2;
+        Read(file, name, numberChek, time, duration, price, i);
 
-        switch (choise2) {
-        case 1:
-            strcpy_s(name, arrname[5]);
-            break;
-        case 2:
-            strcpy_s(name, arrname[6]);
-            break;
-        case 3:
-            strcpy_s(name, arrname[0]);
-            break;
-        case 4:
-            strcpy_s(name, arrname[9]);
-            break;
-        case 5:
-            strcpy_s(name, arrname[1]);
-            break;
-        case 6:
-            strcpy_s(name, arrname[8]);
-            break;
-        case 7:
-            strcpy_s(name, arrname[11]);
-            break;
-        case 8:
-            strcpy_s(name, arrname[7]);
-            break;
-        case 9:
-            strcpy_s(name, arrname[10]);
-            break;
-        case 10:
-            strcpy_s(name, arrname[4]);
-            break;
-        case 11:
-            strcpy_s(name, arrname[2]);
-            break;
-        case 12:
-            strcpy_s(name, arrname[3]);
-            break;
-        default:
-            cout << "Неверный выбор!" << endl;
-            continue;
+        if (numberChek == number) {
+            cout << "Оборудование с данными инвентарным номером уже в прокате, введите другой!" << endl;
+            return false;
         }
-
-        cout << "Введите инвентарный номер: ";
-        while (!(cin >> number)) {
-            cin.ignore();
-            cin.clear(1000, '\n');
-            cout << "Введите число: ";
-        }
-
-        cout << "Введите время сдачи: " << endl;
-
-        while (true) {
-            cout << "Введите часы (0-23): ";
-            cin >> hour;
-
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Ошибка! Введите число." << endl;
-                continue;
-            }
-
-            if (hour >= 0 && hour <= 23) {
-                break;
-            }
-
-            cout << "Ошибка! Часы должны быть от 0 до 23." << endl;
-        }
-
-        while (true) {
-            cout << "Введите минуты (0-59): ";
-            cin >> minutes;
-
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Ошибка! Введите число." << endl;
-                continue;
-            }
-
-            if (minutes >= 0 && minutes <= 59) {
-                break;
-            }
-
-            cout << "Ошибка! Минуты должны быть от 0 до 59." << endl;
-        }
-
-        sprintf_s(time, TIME_SIZE, "%02d.%02d", hour, minutes);
-
-
-        cout << "Введите длительность аренды: ";
-        while (!(cin >> duration)) {
-            cin.ignore();
-            cin.clear(1000, '\n');
-            cout << "Введите число: ";
-        }
-
-        cout << "Введите цену за час: ";
-        while (!(cin >> price)) {
-            cin.ignore();
-            cin.clear(1000, '\n');
-            cout << "Введите число: ";
-        }
-
-        fprintf(file, "%s|%d|%s|%d|%d\n", name, number, time, duration, price);
-
-        cout << "Запись успешно сохранена в файл" << endl;
-
-        cout << "Хотите продолжить y/n ";
-        cin >> choise;
-        cin.ignore();
     }
 
     fclose(file);
 
-    return 0;
+    return true;
 }
 
-int Delete() {// для удаления
-    cout << "Удаление записи..." << endl;
-    return 0;
-}
+void NewRec(char* name, int& number, char* Time, int& duration, int& price) {
+    int hour = -1, minutes = -1, choise2 = 0;
 
-void Out_Rez(Arenda* note, int size) {// для вывода 
+    cout << "Введите тип оборудования: " << endl << endl <<
+        "1. Комплект лыж." << endl <<
+        "2. Комплект сноуборда." << endl <<
+        "3. Сноуборд." << endl <<
+        "4. Ботинки сноубордические." << endl <<
+        "5. Лыжи." << endl <<
+        "6. Ботинки лыжные." << endl <<
+        "7. Палки лыжные." << endl <<
+        "8. Шлем." << endl <<
+        "9. Маска." << endl <<
+        "10. Тюбинг." << endl <<
+        "11. Коньки." << endl <<
+        "12. Беговые лыжи." << endl;
 
-    for (int i = 0; i < size; i++) {
-
-        cout << note[i].name << '\t' <<
-            note[i].number << '\t' <<
-            (note[i].time) << '\t' <<
-            note[i].duration << '\t' <<
-            note[i].price << '\t' << endl;
+    if (!(cin >> choise2)) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Ошибка! Введите число (1-12)" << endl;
+        return;
     }
-}
 
-int QuickSort(Arenda* note, int size, int vibor2) { //Быстрая сортировка
-    // чтобы справа были эл больше опорного, слева меньше
-
-    if (size <= 1) {
-        return 1;
+    if (choise2 < 1 || choise2 > 12) {
+        cout << "Неверный выбор! Введите число от 1 до 12." << endl;
+        return;
     }
 
-    // Берем опорный элемент (лучше взять последний или случайный)
-    Arenda point = note[size - 1]; // Опорный элемент - последний
-    int i = 0; // Индекс для элементов слева
+    switch (choise2) {
+    case 1:
+        strcpy_s(name, 50, arrname[5]);
+        break;
+    case 2:
+        strcpy_s(name, 50, arrname[6]);
+        break;
+    case 3:
+        strcpy_s(name, 50, arrname[0]);
+        break;
+    case 4:
+        strcpy_s(name, 50, arrname[9]);
+        break;
+    case 5:
+        strcpy_s(name, 50, arrname[1]);
+        break;
+    case 6:
+        strcpy_s(name, 50, arrname[8]);
+        break;
+    case 7:
+        strcpy_s(name, 50, arrname[11]);
+        break;
+    case 8:
+        strcpy_s(name, 50, arrname[7]);
+        break;
+    case 9:
+        strcpy_s(name, 50, arrname[10]);
+        break;
+    case 10:
+        strcpy_s(name, 50, arrname[4]);
+        break;
+    case 11:
+        strcpy_s(name, 50, arrname[2]);
+        break;
+    case 12:
+        strcpy_s(name, 50, arrname[3]);
+        break;
+    }
 
-    // Разделение на две части
-    for (int j = 0; j < size - 1; j++) {
-        if (vibor2 == 1) { // По убыванию
-            if (note[j].duration >= point.duration) {
-                // Меняем местами
-                Arenda temp = note[i];
-                note[i] = note[j];
-                note[j] = temp;
-                i++;
+    cout << "Введите инвентарный номер: ";
+    while (true) {
+        if (!(cin >> number) || number <= 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите положительное число" << endl;
+            continue;
+        }
+
+        if (ChekFile(number) == false) {
+            continue;
+        }
+        break;
+    }
+
+    while (true) {
+        cout << "Введите время сдачи: " << endl;
+        while (true) {
+            cout << "Введите часы (0-23): ";
+            if (!(cin >> hour) || hour < 0 || hour > 23) {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Ошибка! Часы должны быть от 0 до 23." << endl;
+                continue;
+            }
+            break;
+        }
+
+        while (true) {
+            cout << "Введите минуты (0-59): ";
+            if (!(cin >> minutes) || minutes < 0 || minutes > 59) {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Ошибка! Минуты должны быть от 0 до 59." << endl;
+                continue;
+            }
+            break;
+        }
+
+        time_t seconds = time(NULL);
+        std::tm* localTime = std::localtime(&seconds);
+        int hoursCurr = localTime->tm_hour;
+        int minutesCurr = localTime->tm_min;
+
+        if (hour < hoursCurr) {
+            break;
+        }
+        else if (hour == hoursCurr) {
+            if (minutes < minutesCurr) {
+                break;
+            }
+            else {
+                cout << "Не верное время!" << endl;
+                continue;
             }
         }
-        else { // По возрастанию
-            if (note[j].duration <= point.duration) {
-                // Меняем местами
-                Arenda temp = note[i];
-                note[i] = note[j];
-                note[j] = temp;
-                i++;
-            }
+        else if (hour > hoursCurr) {
+            cout << "Не верное время!" << endl;
+            continue;
         }
     }
 
-    // Ставим опорный элемент на правильное место
-    Arenda temp = note[i];
-    note[i] = note[size - 1];
-    note[size - 1] = temp;
+    sprintf_s(Time, 20, "%02d.%02d", hour, minutes);
 
-    // Рекурсивно сортируем две части
-    QuickSort(note, i, vibor2);           // Левая часть
-    QuickSort(&note[i + 1], size - i - 1, vibor2); // Правая часть
+    cout << "Введите длительность аренды: ";
+    while (true) {
+        if (!(cin >> duration) || duration < 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите неотрицательное число" << endl;
+            continue;
+        }
+        break;
+    }
+
+    cout << "Введите цену за час: ";
+    while (true) {
+        if (!(cin >> price) || price <= 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите положительное число" << endl;
+            continue;
+        }
+        break;
+    }
+}
+
+int NewRecord() {
+    char choise = 'y';
+
+    while (choise == 'y' || choise == 'Y' || choise == 'н' || choise == 'Н') {
+
+        NewRec(name, number, Time, duration, price);
+
+        FILE* file;
+        errno_t err = fopen_s(&file, "Prokat.txt", "ab");
+
+        if (err == 0 && file != NULL) {
+            Write(file, name, number, Time, duration, price);
+            cout << "Запись успешно сохранена в файл" << endl;
+            fclose(file);
+        }
+        else {
+            cout << "Ошибка открытия файла!" << endl;
+        }
+
+        cout << "Хотите продолжить y/n ";
+        cin >> choise;
+        cin.ignore(10000, '\n');
+    }
 
     return 0;
 }
 
-int SelectionSort(Arenda* note, int size, int vibor2) { //Сортировка выбором
-    //находим максимум или минимум и ставим в конец
+void Out_Rez() {
+    int index = 1;
 
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb");
+
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла или файл не существует!" << endl;
+        return;
+    }
+
+    cout << left
+        << setw(5) << "№"
+        << setw(15) << "Название"
+        << setw(10) << "Номер"
+        << setw(10) << "Время"
+        << setw(15) << "Длительность"
+        << setw(10) << "Цена" << endl;
+
+    for (int i = 0; i < 65; i++) {
+        cout << '-';
+    }
+    cout << endl;
+
+    int size = GetFileSize(file);
+
+    for (; index <= size; index++) {
+
+        Read(file, name, number, Time, duration, price, index);
+
+        cout << left
+            << setw(5) << index
+            << setw(15) << name
+            << setw(10) << number
+            << setw(10) << Time
+            << setw(15) << duration
+            << setw(10) << price << endl;
+    }
+
+    fclose(file);
+}
+
+void QuickSort(int size, int order, int Left) {
     if (size <= 1) {
-        return 1;
+        return;
+    }
+
+    int Right = size + Left - 1;
+    int Pos = (Left + Right) / 2;
+    int Tempi = Left, Tempj = Right;
+
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb+");
+
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла в QuickSort!" << endl;
+        return;
+    }
+
+    Read(file, name, number, Time, duration, price, Pos + 1);
+    int pivotDuration = duration;
+
+    if (order == 2) { // по возрастанию
+        while (Tempi <= Tempj) {
+            while (Tempi <= Right) {
+                Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Tempi + 1);
+                if (tempDuration < pivotDuration) {
+                    Tempi++;
+                }
+                else {
+                    break;
+                }
+            }
+
+            while (Tempj >= Left) {
+                Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Tempj + 1);
+                if (tempDuration > pivotDuration) {
+                    Tempj--;
+                }
+                else {
+                    break;
+                }
+            }
+
+            if (Tempi <= Tempj) {
+             
+                Read(file, name, number, Time, duration, price, Tempi + 1);
+                Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Tempj + 1);
+
+                fseek(file, Tempi * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+                Write(file, tempName, tempNumber, tempTime, tempDuration, tempPrice);
+
+                fseek(file, Tempj * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+                Write(file, name, number, Time, duration, price);
+
+                Tempi++;
+                Tempj--;
+            }
+        }
+    }
+    else if (order == 1) { // по убыванию
+        while (Tempi <= Tempj) {
+            
+            while (Tempi <= Right) {
+                Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Tempi + 1);
+                if (tempDuration > pivotDuration) {
+                    Tempi++;
+                }
+                else {
+                    break;
+                }
+            }
+
+            while (Tempj >= Left) {
+                Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Tempj + 1);
+                if (tempDuration < pivotDuration) {
+                    Tempj--;
+                }
+                else {
+                    break;
+                }
+            }
+
+            if (Tempi <= Tempj) {
+               
+                Read(file, name, number, Time, duration, price, Tempi + 1);
+                Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Tempj + 1);
+
+                fseek(file, Tempi * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+                Write(file, tempName, tempNumber, tempTime, tempDuration, tempPrice);
+
+                fseek(file, Tempj * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+                Write(file, name, number, Time, duration, price);
+
+                Tempi++;
+                Tempj--;
+            }
+        }
+    }
+
+    fclose(file);
+
+
+    QuickSort(Tempj - Left + 1, order, Left);
+    QuickSort(Right - Tempi + 1, order, Tempi);
+}
+
+void SelectionSort(int size, int order) {
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb+");
+
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла!" << endl;
+        return;
     }
 
     for (int i = 0; i < size - 1; i++) {
-        int extremumIndex = i;
+        int Poisk = i;
+
+        
+        Read(file, name, number, Time, duration, price, i + 1);
+        int currentNumber = number;
 
         for (int j = i + 1; j < size; j++) {
-            if (vibor2 == 1) { // По убыванию 
-                if (note[j].number > note[extremumIndex].number) {
-                    extremumIndex = j;
+            Read(file, currName, currNumber, currTime, currDuration, currPrice, j + 1);
+
+            if (order == 1) { // по убыванию
+                if (currNumber > currentNumber) {
+                    Poisk = j;
+                    currentNumber = currNumber;
                 }
             }
-            else { // По возрастанию 
-                if (note[j].number < note[extremumIndex].number) {
-                    extremumIndex = j;
+            else { // по возрастанию
+                if (currNumber < currentNumber) {
+                    Poisk = j;
+                    currentNumber = currNumber;
                 }
             }
         }
 
-        // Если нашли элемент, который должен быть на позиции i
-        if (extremumIndex != i) {
-            Arenda temp = note[i];
-            note[i] = note[extremumIndex];
-            note[extremumIndex] = temp;
+        if (Poisk != i) {
+            Read(file, name, number, Time, duration, price, i + 1);
+            Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, Poisk + 1);
+
+            fseek(file, i * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+            Write(file, tempName, tempNumber, tempTime, tempDuration, tempPrice);
+
+            fseek(file, Poisk * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+            Write(file, name, number, Time, duration, price);
         }
     }
 
-    return 0;
+    fclose(file);
 }
 
-int InsertionSort(Arenda* note, int size, int vibor2) { //Сортировка вставками
-    // проверям чтобы каждый эл был меньше левого и больше правого и наоборот
+int InsertionSort(int size, int order) {
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb+");
 
-    if (size <= 1) {
-        return 1;
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла!" << endl;
+        return -1;
     }
 
     for (int i = 1; i < size; i++) {
-        Arenda key = note[i];
+       
+        Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, i + 1);
+        int currentPrice = tempPrice;
+
         int j = i - 1;
 
-        if (vibor2 == 1) { // По убыванию
+        if (order == 2) { // По возрастанию
+            while (j >= 0) {
+                Read(file, name, number, Time, duration, price, j + 1);
 
-            while (j >= 0 && note[j].number < key.number) {
-                note[j + 1] = note[j];
-                j--;
+                if (price > currentPrice) {
+                    
+                    fseek(file, (j + 1) * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+                    Write(file, name, number, Time, duration, price);
+                    j--;
+                }
+                else {
+                    break;
+                }
             }
         }
-        else { // По возрастанию
+        else if (order == 1) { // По убыванию
+            while (j >= 0) {
+                Read(file, name, number, Time, duration, price, j + 1);
 
-            while (j >= 0 && note[j].number > key.number) {
-                note[j + 1] = note[j];
-                j--;
+                if (price < currentPrice) {
+                    
+                    fseek(file, (j + 1) * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+                    Write(file, name, number, Time, duration, price);
+                    j--;
+                }
+                else {
+                    break;
+                }
             }
         }
 
-        note[j + 1] = key;
+
+        fseek(file, (j + 1) * (50 + sizeof(int) + 20 + sizeof(int) + sizeof(int)), SEEK_SET);
+        Write(file, tempName, tempNumber, tempTime, tempDuration, tempPrice);
     }
 
+    fclose(file);
     return 0;
 }
 
-int Sort(Arenda* note, int size) { // для сортировки 
-
+int Sort() {
     int vibor, vibor2;
 
-    cout << "Сортировка..." << endl;
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "ab+");
+
+    int size = GetFileSize(file);
+    if (size == 0) {
+        cout << "Файл пуст." << endl;
+        fclose(file);
+        return 0;
+    }
+
+    fclose(file);
 
     while (true) {
-
-        cout << "Выберите как сортирвоать:" << endl <<
+        cout << "Выберите как сортировать:" << endl <<
             "1. Быстрая сортировка по длительности." << endl <<
             "2. Сортировка выбором по инвентарному номеру." << endl <<
             "3. Сортировка вставками по цене за час." << endl <<
             "Введите 0 для выхода." << endl;
 
-        while (!(cin >> vibor)) { //исправить
+        if (!(cin >> vibor) || vibor < 0 || vibor > 3) {
             cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Ошибка! Введите число (0 - 3): ";
-        }
-
-        cout << "Как сортировать" << endl <<
-            "1. По убыванию." << endl <<
-            "2. По возрастанию. " << endl <<
-            "Введите 0 для выхода" << endl;
-
-        while (!(cin >> vibor2)) {
-            cin.clear();
-            cin.ignore(1000, '\n'); //нормально понять че это - очищает неверный ввод
-            cout << "Ошибка! Введите число (1 - 2): ";
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите число (0 - 3)" << endl;
+            continue;
         }
 
         if (vibor == 0) {
             return 0;
         }
 
-        if (vibor < 0 || vibor > 3) {
-            cout << "Введите номер(0 - 3): ";
+        cout << "Как сортировать" << endl <<
+            "1. По убыванию." << endl <<
+            "2. По возрастанию. " << endl;
+
+        if (!(cin >> vibor2) || vibor2 < 1 || vibor2 > 2) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите число (1 - 2)" << endl;
             continue;
         }
 
+        int Left = 0;
+
         switch (vibor) {
         case 1:
-            if (QuickSort(note, size, vibor2) == 0) {
-                cout << "В массиве не хватает элементов для сортировки";
-            }
-            Out_Rez(note, size);
+            QuickSort(size, vibor2, Left);
+            cout << "Сортировка выполнена!" << endl;
+            Out_Rez();
             break;
         case 2:
-            if (SelectionSort(note, size, vibor2) == 0) {
-                cout << "В массиве не хватает элементов для сортировки";
-            }
-            Out_Rez(note, size);
+            SelectionSort(size, vibor2);
+            cout << "Сортировка выполнена!" << endl;
+            Out_Rez();
             break;
         case 3:
-            if (InsertionSort(note, size, vibor2) == 0) {
-                cout << "В массиве не хватает элементов для сортировки";
-            }
-            Out_Rez(note, size);
+            InsertionSort(size, vibor2);
+            cout << "Сортировка выполнена!" << endl << endl;
+            Out_Rez();
             break;
         }
-    }
 
+    }
 
     return 0;
 }
 
-int serchBin(Arenda* note, int size) {// Бинарный поиск по длительности
-    //бинанрный поиск когда ищем по половинам
-
-    const int SIZE = 1000;
-    int indices[SIZE];
-    int index = 0, zndex = 0, cndex = 0, jndex = 0;
-    char choise, choise2, choise3 = 'y';
+int serchBin() {
     int select;
-    int left, right, mid;
+    char choise3 = 'y', choise2;
 
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb");
 
-    while (choise3 == 'y' || choise3 == 'Y') {
+    int size = GetFileSize(file);
+    if (size == 0) {
+        cout << "Файл пуст." << endl;
+        return 0;
+    }
+
+    while (choise3 == 'y' || choise3 == 'Y' || choise3 == 'н' || choise3 == 'Н') {
+
+        int jndex = 0;
 
         for (int i = 0; i < size - 1; i++) {
+            Read(file, name, number, Time, duration, price, i + 1);
+            Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, i + 2);
 
-            if (note[i].duration > note[i + 1].duration) {
+
+            if (duration > tempDuration) {
                 jndex++;
             }
         }
 
+        fclose(file);
+
         if (jndex >= 1) {
             while (true) {
                 cout << "Данные не отсортированы. Отсортировать?(y/n)";
-                cin >> choise;
+                cin >> choise2;
+                cin.ignore(10000, '\n');
 
-                if (choise == 'y' || choise == 'Y') {
+                if (choise2 == 'y' || choise2 == 'Y') {
 
-                    QuickSort(note, size, choise);
+                    QuickSort(size, 2, 0);
 
                 }
                 else {
                     cout << "Данные не отсортированы. Хотите выйти(y/n)";
                     cin >> choise2;
+                    cin.ignore(10000, '\n');
 
                     if (choise2 == 'y' || choise2 == 'Y') {
                         return 0;
@@ -434,63 +662,63 @@ int serchBin(Arenda* note, int size) {// Бинарный поиск по дли
             }
         }
 
-        cout << "Введите значение длительности: ";
-        cin >> select;
+        err = fopen_s(&file, "Prokat.txt", "rb");
 
-        left = 0;
-        right = size - 1;
-        cndex = 0;
+        cout << "Введите значение длительности: ";
+        if (!(cin >> select) || select < 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите неотрицательное число" << endl;
+            continue;
+        }
+
+        int left = 0, right = size - 1, mid;
         bool found = false;
 
         while (left <= right) {
-
             mid = left + (right - left) / 2;
 
-            if (select == note[mid].duration) {
+            Read(file, name, number, Time, duration, price, mid + 1);
+
+
+            if (select == duration) {
                 found = true;
 
                 int tempMid = mid;
-                while (tempMid <= right && note[tempMid].duration == select) {
-                    if (cndex < SIZE) {
-                        indices[cndex] = tempMid;
-                        cndex++;
+                while (tempMid <= right) {
+
+                    Read(file, name, number, Time, duration, price, mid + 1);
+                    if (duration == select) {
+                        cout << name << '\t' <<
+                            number << '\t' <<
+                            Time << '\t' <<
+                            duration << '\t' <<
+                            price << '\t' << endl;
+                        tempMid++;
                     }
-                    tempMid++;
+                    else {
+                        break;
+                    }
                 }
 
                 tempMid = mid - 1;
-                while (tempMid >= left && note[tempMid].duration == select) {
-                    if (cndex < SIZE) {
-                        indices[cndex] = tempMid;
-                        cndex++;
+                while (tempMid >= left) {
+                    Read(file, name, number, Time, duration, price, mid + 1);
+                    if (duration == select) {
+                        cout << name << '\t' <<
+                            number << '\t' <<
+                            Time << '\t' <<
+                            duration << '\t' <<
+                            price << '\t' << endl;
+                        tempMid--;
                     }
-                    tempMid--;
-                }
-
-                for (int i = 0; i < cndex - 1; i++) {
-                    for (int j = 0; j < cndex - i - 1; j++) {
-                        if (indices[j] > indices[j + 1]) {
-                            int temp = indices[j];
-                            indices[j] = indices[j + 1];
-                            indices[j + 1] = temp;
-                        }
+                    else {
+                        break;
                     }
                 }
-
-                for (int i = 0; i < cndex; i++) {
-
-                    int v = indices[i];
-
-                    cout << note[v].name << '\t';
-                    cout << note[v].number << '\t';
-                    cout << note[v].time << '\t';
-                    cout << note[v].duration << '\t';
-                    cout << note[v].price << endl;
-                }
-
                 break;
             }
-            else if (note[mid].duration > select) {
+            else if (duration > select) {
                 right = mid - 1;
             }
             else {
@@ -504,92 +732,204 @@ int serchBin(Arenda* note, int size) {// Бинарный поиск по дли
 
         cout << "Хотите повторить?(y/n)";
         cin >> choise3;
+        cin.ignore(10000, '\n');
+    }
+
+    fclose(file);
+
+    return 0;
+}
+
+int SerchZap() {
+    int hour = 0, minutes = 0;
+    int currentTimeMinutes = 0;
+    int foundCount = 0;
+
+    cout << "Поиск оборудования, находящегося в прокате" << endl;
+    cout << "Введите текущее время:" << endl;
+
+    while (true) {
+        cout << "Часы (0-23): ";
+        if (!(cin >> hour) || hour < 0 || hour > 23) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите число от 0 до 23." << endl;
+            continue;
+        }
+        break;
+    }
+
+    while (true) {
+        cout << "Минуты (0-59): ";
+        if (!(cin >> minutes) || minutes < 0 || minutes > 59) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите число от 0 до 59." << endl;
+            continue;
+        }
+        break;
+    }
+
+    currentTimeMinutes = hour * 60 + minutes;
+
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb");
+
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла или файл не существует!" << endl;
+        return 0;
+    }
+
+    int size = GetFileSize(file);
+    if (size == 0) {
+        cout << "Файл пуст." << endl;
+        fclose(file);
+        return 0;
+    }
+
+    cout << "\nОборудование в прокате на момент " << hour << ":" << (minutes < 10 ? "0" : "") << minutes << ":" << endl;
+    cout << left
+        << setw(5) << "№"
+        << setw(15) << "Тип"
+        << setw(10) << "Номер"
+        << setw(10) << "Время начала"
+        << setw(12) << "Длительность"
+        << setw(10) << "Цена/час"
+        << setw(15) << "Полная стоимость" << endl;
+
+    for (int i = 0; i < 72; i++) cout << '-';
+    cout << endl;
+
+    for (int i = 1; i <= size; i++) {
+        Read(file, name, number, Time, duration, price, i);
+
+        int startHour = 0, startMin = 0;
+        sscanf_s(Time, "%d.%d", &startHour, &startMin);
+        int startMinutes = startHour * 60 + startMin;
+        int endMinutes = startMinutes + duration * 60;
+
+        if (startMinutes <= currentTimeMinutes && currentTimeMinutes < endMinutes) {
+            foundCount++;
+            int totalCost = price * duration;
+            cout << left
+                << setw(5) << foundCount
+                << setw(15) << name
+                << setw(10) << number
+                << setw(10) << Time
+                << setw(12) << duration
+                << setw(10) << price
+                << setw(15) << totalCost << endl;
+        }
+    }
+
+    if (foundCount == 0) {
+        cout << "На заданное время оборудование в прокате отсутствует." << endl;
+    }
+    else {
+        cout << "\nВсего в прокате: " << foundCount << " единиц оборудования." << endl;
+    }
+
+    fclose(file);
+    return 0;
+}
+
+int serchLin() {
+    char tipe[100];
+    char choise = 'y';
+
+    while (choise == 'y' || choise == 'Y' || choise == 'н' || choise == 'Н') {
+
+        cout << "Введите тип оборудования для поиска: " << endl;
+        cout << "Доступные типы:" << endl;
+        cout << "snowbord, ski, skates, cross-countri skiing, tubing, set of ski" << endl;
+        cout << "set of snowbord, helmet, ski boots, snowbord boots, mask, ski poles" << endl;
+        cout << "Введите 0 для выхода: ";
+
+        cin.ignore(10000, '\n');
+        cin.getline(tipe, 100);
+
+        if (tipe[0] == '0') {
+            break;
+        }
+
+        FILE* file;
+        errno_t err = fopen_s(&file, "Prokat.txt", "rb");
+
+        if (err != 0 || file == NULL) {
+            cout << "Ошибка открытия файла или файл не существует!" << endl;
+            return 0;
+        }
+
+        int size = GetFileSize(file);
+        if (size == 0) {
+            cout << "Файл пуст." << endl;
+            fclose(file);
+            return 0;
+        }
+
+        int foundCount = 0;
+        cout << "\nРезультаты поиска:" << endl;
+        cout << left
+            << setw(5) << "№"
+            << setw(15) << "Название"
+            << setw(10) << "Номер"
+            << setw(10) << "Время"
+            << setw(15) << "Длительность"
+            << setw(10) << "Цена" << endl;
+
+        for (int i = 0; i < 65; i++) {
+            cout << '-';
+        }
+        cout << endl;
+
+        for (int i = 1; i <= size; i++) {
+
+            Read(file, name, number, Time, duration, price, i);
+
+            if (strcmp(name, tipe) == 0) {
+                foundCount++;
+                cout << left
+                    << setw(5) << foundCount
+                    << setw(15) << name
+                    << setw(10) << number
+                    << setw(10) << Time
+                    << setw(15) << duration
+                    << setw(10) << price << endl;
+            }
+        }
+
+        if (foundCount == 0) {
+            cout << "Записи с типом оборудования \"" << tipe << "\" не найдены" << endl;
+        }
+        else {
+            cout << "\nВсего найдено записей: " << foundCount << endl;
+        }
+
+        fclose(file);
+
+        cout << "\nХотите продолжить поиск? (y/n): ";
+        cin >> choise;
+        cin.ignore(10000, '\n');
     }
 
     return 0;
 }
 
-int serchLin(Arenda* note, int size) { //линейный поиск
-    //обычный поик когда проходим просто по всем элементам
-
-    const int MAX_SIZE = 100;
-    const int SIZE = 1000;
-    char tipe[MAX_SIZE];
-    char str[MAX_SIZE];
-    int chisl[SIZE];
-    char choise = 'y';
-
-    int index = 0, jndex = 0, cndex = 0;
-
-    while (choise == 'y' || choise == 'Y') {
-
-        cout << "Введите тип оборудования: " << endl <<
-            "Введите 0 для выхода";
-        cin.ignore();
-        cin.getline(tipe, MAX_SIZE);
-
-        if (tipe[cndex] == '0') {
-
-            return 0;
-
-        }
-
-        for (int j = 0; j < size; j++) {
-
-            for (int i = 0; i < strlen(note[j].name); i++) {
-                str[i] = note[j].name[i];
-            }
-
-            str[strlen(note[j].name)] = '\0';
-
-
-            if (strcmp(str, tipe) == 0) {
-                chisl[index] = j;
-                index++;
-            }
-        }
-
-        if (index == 0) {
-            cout << "Записи не найдены" << endl;
-            return -1;
-        }
-
-        cout << "Найдено записей: " << index << endl;
-
-        for (int i = 0; i < index; i++) {
-
-            int v = chisl[i];
-
-            cout << note[v].name << '\t';
-            cout << note[v].number << '\t';
-            cout << note[v].time << '\t';
-            cout << note[v].duration << '\t';
-            cout << note[v].price << endl;
-
-        }
-
-        cout << "Хотите продолжить?(y/n)";
-        cin >> choise;
-    }
-
-    return index;
-}
-
-int Search(Arenda* note, int size) {// для поиска
-
+int Search() {
     int chisl;
 
     while (true) {
-
         cout << "Выберите как искать:" << endl <<
             "1. Бинарный поиск по длительности." << endl <<
             "2. Линейный поиск по типу." << endl <<
+            "3. Поиск находящегося в прокате оборудоавния." << endl <<
             "Нажмите 0 для выхода.";
 
-        while (!(cin >> chisl)) {
+        if (!(cin >> chisl) || chisl < 0 || chisl > 3) {
             cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Ошибка! Введите число (0 - 2): ";
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите число (0 - 3)" << endl;
+            continue;
         }
 
         if (chisl == 0) {
@@ -597,18 +937,15 @@ int Search(Arenda* note, int size) {// для поиска
             return 0;
         }
 
-        if (chisl < 0 || chisl > 2) {
-            cout << "Введите номер(0 - 2): ";
-            continue;
-        }
-
         switch (chisl) {
         case 1:
-            serchBin(note, size);
+            serchBin();
             break;
         case 2:
-
-            if (serchLin(note, size) == 0);
+            serchLin();
+            break;
+        case 3:
+            SerchZap();
             break;
         }
     }
@@ -616,204 +953,169 @@ int Search(Arenda* note, int size) {// для поиска
     return 0;
 }
 
-int Stat(Arenda* note, int size) {// для статистики
+int Stat() {
     cout << "Статистика цен на оборудование..." << endl;
 
-    int choise = 2;
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb");
 
-    const int SIZE = 100;
-    char snowbord[] = "snowbord";
-    Arenda arrSnowbord[SIZE];
-    int indexSnowbord = 0, jndexSnowbord = 0;
-    char ski[] = "ski";
-    Arenda arrSki[SIZE];
-    int indexSki = 0, jndexSki = 0;
-    char skates[] = "skates";
-    Arenda arrSkates[SIZE];
-    int indexSkates = 0, jndexSkates = 0;
-    char cross_countriSkiing[] = "cross-countri skiing";
-    Arenda arrCross_countriSkiing[SIZE];
-    int indexCross_countriSkiing = 0, jndexCross_countriSkiing = 0;
-    char tubing[] = "tubing";
-    Arenda arrTubing[SIZE];
-    int indexTubing = 0, jndexTubing = 0;
-    char setSki[] = "set of ski";
-    Arenda arrSetSki[SIZE];
-    int indexSetSki = 0, jndexSetSki = 0;
-    char setSnowbord[] = "set of snowbord";
-    Arenda arrSetSnowbord[SIZE];
-    int indexSetSnowbord = 0, jndexSetSnowbord = 0;
-    char helmet[] = "helmet";
-    Arenda arrHelmet[SIZE];
-    int indexHelmet = 0, jndexHelmet = 0;
-    char skiBoots[] = "ski boots";
-    Arenda arrSkiBoots[SIZE];
-    int indexSkiBoots = 0, jndexSkiBoots = 0;
-    char snowbordBoots[] = "snowbord boots";
-    Arenda arrSnowbordBoots[SIZE];
-    int indexSnowbordBoots = 0, jndexSnowbordBoots = 0;
-    char mask[] = "mask";
-    Arenda arrMask[SIZE];
-    int indexMask = 0, jndexMask = 0;
-    char skiPoles[] = "ski poles";
-    Arenda arrSkiPoles[SIZE];
-    int indexSkiPoles = 0, jndexSkiPoles = 0;
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла!" << endl;
+        return 0;
+    }
 
+    int size = GetFileSize(file);
+    if (size == 0) {
+        cout << "Файл пуст." << endl;
+        fclose(file);
+        return 0;
+    }
 
-    for (int i = 0; i < size; i++) {
+    FILE* file2;
+    errno_t err2 = fopen_s(&file2, "Statistika.txt", "w");
+    if (err2 != 0 || file2 == NULL) {
+        cout << "Ошибка создания файла статистики!" << endl;
+        fclose(file);
+        return 0;
+    }
 
-        if (strcmp(note[i].name, snowbord) == 0) {
+    fprintf(file2, "%-20s | %-10s | %-10s | %-12s | %-10s\n",
+        "Название", "Номер", "Время", "Длительность", "Цена");
+    fprintf(file2, "---------------------|------------|------------|--------------|------------\n");
 
-            arrSnowbord[indexSnowbord] = note[i];
-            indexSnowbord++;
+    for (int j = 0; j < 12; j++) {
+        for (int i = 1; i <= size; i++) {
 
-        }
-        else {
-            if (strcmp(note[i].name, ski) == 0) {
-                arrSki[indexSki] = note[i];
-                indexSki++;
-            }
-            if (strcmp(note[i].name, skates) == 0) {
-                arrSkates[indexSkates] = note[i];
-                indexSkates++;
-            }
-            if (strcmp(note[i].name, cross_countriSkiing) == 0) {
-                arrCross_countriSkiing[indexCross_countriSkiing] = note[i];
-                indexCross_countriSkiing++;
-            }
-            if (strcmp(note[i].name, tubing) == 0) {
-                arrTubing[indexTubing] = note[i];
-                indexTubing++;
-            }
-            if (strcmp(note[i].name, setSki) == 0) {
-                arrSetSki[indexSetSki] = note[i];
-                indexSetSki++;
-            }
-            if (strcmp(note[i].name, setSnowbord) == 0) {
-                arrSetSnowbord[indexSetSnowbord] = note[i];
-                indexSetSnowbord++;
-            }
-            if (strcmp(note[i].name, helmet) == 0) {
-                arrHelmet[indexHelmet] = note[i];
-                indexHelmet++;
-            }
-            if (strcmp(note[i].name, skiBoots) == 0) {
-                arrSkiBoots[indexSkiBoots] = note[i];
-                indexSkiBoots++;
-            }
-            if (strcmp(note[i].name, snowbordBoots) == 0) {
-                arrSnowbordBoots[indexSnowbordBoots] = note[i];
-                indexSnowbordBoots++;
-            }
-            if (strcmp(note[i].name, mask) == 0) {
-                arrMask[indexMask] = note[i];
-                indexMask++;
-            }
-            if (strcmp(note[i].name, skiPoles) == 0) {
-                arrSkiPoles[indexSkiPoles] = note[i];
-                indexSkiPoles++;
+            Read(file, name, number, Time, duration, price, i);
+
+            if (strcmp(arrname[j], name) == 0) {
+                fprintf(file2, "%-20s | %-10d | %-10s | %-12d | %-10d\n",
+                    name, number, Time, duration, price);
             }
         }
     }
 
-    QuickSort(arrSnowbord, indexSnowbord, choise);
-    QuickSort(arrSki, indexSki, choise);
-    QuickSort(arrSkates, indexSkates, choise);
-    QuickSort(arrCross_countriSkiing, indexCross_countriSkiing, choise);
-    QuickSort(arrTubing, indexTubing, choise);
-    QuickSort(arrSetSki, indexSetSki, choise);
-    QuickSort(arrSetSnowbord, indexSetSnowbord, choise);
-    QuickSort(arrHelmet, indexHelmet, choise);
-    QuickSort(arrSkiBoots, indexSkiBoots, choise);
-    QuickSort(arrSnowbordBoots, indexSnowbordBoots, choise);
-    QuickSort(arrMask, indexMask, choise);
-    QuickSort(arrSkiPoles, indexSkiPoles, choise);
+    fclose(file2);
+    fclose(file);
 
-    cout << "Статистика проката сноуборда" << endl << endl;
-    Out_Rez(arrSnowbord, indexSnowbord);
-    cout << "Статистика проката сноубордических ботинок" << endl << endl;
-    Out_Rez(arrSkiBoots, indexSkiBoots);
-    cout << "Статистика проката горных лыж" << endl << endl;
-    Out_Rez(arrSki, indexSki);
-    cout << "Статистика проката лыжных ботинок" << endl << endl;
-    Out_Rez(arrSkiBoots, indexSkiBoots);
-    cout << "Статистика проката лыжных палок" << endl << endl;
-    Out_Rez(arrSkiPoles, indexSkiPoles);
-    cout << "Статистика проката коньков" << endl << endl;
-    Out_Rez(arrSkates, indexSkates);
-    cout << "Статистика проката беговых лыж" << endl << endl;
-    Out_Rez(arrCross_countriSkiing, indexCross_countriSkiing);
-    cout << "Статистика проката тюбинга" << endl << endl;
-    Out_Rez(arrTubing, indexTubing);
-    cout << "Статистика проката комплекта горных лыж" << endl << endl;
-    Out_Rez(arrSetSki, indexSetSki);
-    cout << "Статистика проката комплекта сноуборда" << endl << endl;
-    Out_Rez(arrSetSnowbord, indexSetSnowbord);
-    cout << "Статистика проката шлемов" << endl << endl;
-    Out_Rez(arrHelmet, indexHelmet);
-    cout << "Статистика проката горнолыжных масок" << endl << endl;
-    Out_Rez(arrMask, indexMask);
+    cout << "Статистика сохранена в файл Statistika.txt" << endl;
 
+    return 0;
+}
+
+int Delete() {
+    int choise;
+    char choise2 = 'y';
+
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb+");
+
+    if (err != 0 || file == NULL) {
+        cout << "Ошибка открытия файла!" << endl;
+        return 0;
+    }
+
+    int size = GetFileSize(file);
+    if (size == 0) {
+        cout << "Файл пуст." << endl;
+        return 0;
+    }
+
+    fclose(file);
+
+    cout << "Удаление записи " << endl << endl;
+
+    while (choise2 == 'y' || choise2 == 'Y' || choise2 == 'н' || choise2 == 'Н') {
+
+        Out_Rez();
+
+        cout << endl << "Введите номер записи которую хотите удалить: " << endl
+            << "Введите 0 для выхода" << endl;
+
+        if (!(cin >> choise)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Ошибка ввода!" << endl;
+            continue;
+        }
+
+        if (choise == 0) {
+            return 0;
+        }
+
+        if (choise < 1 || choise > size) {
+            cout << "Неверный номер записи! Введите число от 1 до " << size << endl;
+            continue;
+        }
+
+        err = fopen_s(&file, "Prokat.txt", "rb+");
+
+        for (int i = choise; i < size; i++) {
+
+            Read(file, tempName, tempNumber, tempTime, tempDuration, tempPrice, i + 1);
+
+            fseek(file, (i - 1) * (70 + (3 * sizeof(int))), SEEK_SET);
+
+            Write(file, tempName, tempNumber, tempTime, tempDuration, tempPrice);
+        }
+
+        int newSize = (size - 1) * (70 + (3 * sizeof(int))); //спросить
+        _chsize_s(_fileno(file), newSize);
+
+        fclose(file);
+
+        cout << "Запись успешно удалена!" << endl;
+        size--;
+
+        cout << "Хотите удалить еще запись?(y/n)";
+        cin >> choise2;
+        cin.ignore(10000, '\n');
+    }
+
+    return 0;
+}
+
+int Editing() {
+
+    int Choise, Num, Chet;
+
+    cout << "Выберите запись которую хотите отредактирова: " << endl << endl;
+
+    Out_Rez();
+
+    cout << "Ваш выбор:" << '\t';
+    cin >> Num;
+
+    NewRec(name, number, Time, duration, price);
+
+    FILE* file;
+    errno_t err = fopen_s(&file, "Prokat.txt", "rb+");
+
+    int pos = (Num - 1) * (70 + (3 * sizeof(int)));
+    fseek(file, pos, SEEK_SET);
+
+
+    Write(file, name, number, Time, duration, price);
+    cout << "Запись успешно сохранена в файл" << endl;
+
+    fclose(file);
+
+    return 0;
+}
+
+int clearScrean() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
     return 0;
 }
 
 int main() {
     setlocale(LC_ALL, "rus");
 
-    const int MAX_LINE = 1000;
-    const int MAX_FIELDS = 5;
-    const int FIELD_SIZE = 100;
-
-    int index = 0;
-
-    char buffer[MAX_LINE];
-    Arenda note[1000];
-
-    FILE* file;
-    errno_t err = fopen_s(&file, "Prokat.txt", "r");
-
-    if (err == 0 && file != NULL) {
-        // чтение первой строки из файла
-
-        while (true) {
-            if (fgets(buffer, MAX_LINE, file) != NULL) {
-                int len = strlen(buffer);
-                if (len > 0 && buffer[len - 1] == '\n') {
-                    buffer[len - 1] = '\0';
-                }
-
-                // разбитие строки по словам
-                char* context = NULL;
-                char* token = strtok_s(buffer, "|", &context);
-
-                if (token != NULL) {
-                    strcpy_s(note[index].name, sizeof(note[index].name), token);
-
-                    token = strtok_s(context, "|", &context);
-                    if (token != NULL) note[index].number = atoi(token);
-
-                    token = strtok_s(context, "|", &context);
-                    if (token != NULL) {
-
-                        strcpy_s(note[index].time, sizeof(note[index].time), token);
-                    }
-
-                    token = strtok_s(context, "|", &context);
-                    if (token != NULL) note[index].duration = atoi(token);
-
-                    token = strtok_s(context, "|", &context);
-                    if (token != NULL) note[index].price = atoi(token);
-                }
-
-                index++;
-
-            }
-            else {
-                break;
-            }
-        }
-        fclose(file);
-    }
+    int choise = 1;
 
     cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
     cout << "Для выбора пункта введите его номер" << endl;
@@ -824,16 +1126,23 @@ int main() {
             "3. Отсортировать." << endl <<
             "4. Найти находящееся в прокате оборудование." << endl <<
             "5. Статистика цен на оборудование." << endl <<
-            "6. Вывести все на экран." << endl <<
+            "6. Отредактировать запись." << endl <<
+            "7. Вывести все на экран." << endl <<
             "Для выхода введите 0." << endl <<
-            "Введите номер(0 - 6): ";
+            "Введите номер(0 - 7): ";
 
         int num;
 
-        while (!(cin >> num)) {
+        if (!(cin >> num)) {
             cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Ошибка! Введите число (0 - 6): ";
+            cin.ignore(10000, '\n');
+            cout << "Ошибка! Введите число (0 - 7)" << endl;
+            continue;
+        }
+
+        if (num < 0 || num > 7) {
+            cout << "Введите номер(0 - 7)" << endl;
+            continue;
         }
 
         if (num == 0) {
@@ -841,34 +1150,58 @@ int main() {
             return 0;
         }
 
-        if (num < 0 || num > 6) {
-            cout << "Введите номер(0 - 6): ";
-            continue;
-        }
-
-
         switch (num) {
         case 1:
             NewRecord();
+            clearScrean();
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
             break;
         case 2:
             Delete();
+            clearScrean();
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
             break;
         case 3:
-            if (Sort(note, index) == 0) {
-            }
+            Sort();
+            clearScrean();
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
             break;
         case 4:
-            Search(note, index);
+            Search();
+            clearScrean();
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
             break;
         case 5:
-            Stat(note, index);
+            Stat();
+            clearScrean();
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
             break;
         case 6:
-            Out_Rez(note, index);
+            Editing();
+            cout << "Введите 0 для выхода: ";
+            cin >> choise;
+            if (choise == 0) {
+                clearScrean();
+            }
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
+            break;
+        case 7:
+            Out_Rez();
+            cout << "Введите 0 для выхода: ";
+            cin >> choise;
+            if (choise == 0) {
+                clearScrean();
+            }
+            cout << "СИСТЕМА УЧЕТА ПРОКАТА ГОРНОЛЫЖНОГО ОБОРУДОВАНИЯ" << endl << endl;
+            cout << "Для выбора пункта введите его номер" << endl;
             break;
         }
     }
-
     return 0;
 }
